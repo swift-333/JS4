@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>крестики нолики</title>
+</head>
+<body>
+<script>
+    "use strict";
+
+    // 1 Задание
+
+    function getDigitsNumber(num) {
+        if (!Number.isInteger(num) || num < 0 || num > 999) {
+            console.log('Значение аргумента должно быть целым числом в диапозоне от 0 до 999.');
+            return {};
+        }
+        const object = {};
+
+        object.firstDigit = num % 10;
+        object.secondDigit = Math.floor(num / 10) % 10;
+        object.thirdDigit = Math.floor(num / 100);
+
+        return object;
+    }
+
+    console.log(getDigitsNumber(58));
+
+
+    // 2. Задание
+
+    const settings = {
+        rowsCount: 10,
+        colsCount: 10,
+        startPositionX: 0,
+        startPositionY: 0,
+    };
+
+
+    const player = {
+        x: null,
+        y: null,
+
+
+        init(startX, startY) {
+            this.x = startX;
+            this.y = startY;
+        },
+
+
+        move(nextStep) {
+            this.x = nextStep.x;
+            this.y = nextStep.y;
+        },
+
+
+        getNextPosition(direction) {
+            const nextPosition = {
+                x: this.x,
+                y: this.y,
+            };
+
+
+            switch (direction) {
+                case 1:
+                    nextPosition.x--;
+                    nextPosition.y++;
+                    break;
+                case 2:
+                    nextPosition.y++;
+                    break;
+                case 3:
+                    nextPosition.x++;
+                    nextPosition.y++;
+                    break;
+                case 4:
+                    nextPosition.x--;
+                    break;
+                case 6:
+                    nextPosition.x++;
+                    break;
+                case 7:
+                    nextPosition.x--;
+                    nextPosition.y--;
+                    break;
+                case 8:
+                    nextPosition.y--;
+                    break;
+                case 9:
+                    nextPosition.x++;
+                    nextPosition.y--;
+                    break;
+            }
+
+            return nextPosition;
+        }
+    };
+
+
+    const game = {
+        settings,
+        player,
+
+
+        run() {
+            this.player.init(this.settings.startPositionX, this.settings.startPositionY);
+
+            while (true) {
+
+                this.render();
+
+
+                const direction = this.getDirection();
+
+                if (direction === -1) {
+                    alert('До свидания.');
+                    return;
+                }
+
+                const nextStep = this.player.getNextPosition(direction);
+                if (this.canPlayerMakeStep(nextStep)) {
+
+                    this.player.move(nextStep);
+                }
+            }
+        },
+
+
+        render() {
+
+            let map = "";
+
+            for (let row = 0; row < this.settings.rowsCount; row++) {
+
+                for (let col = 0; col < this.settings.colsCount; col++) {
+
+                    if (this.player.y === row && this.player.x === col) {
+                        map += 'o ';
+                    } else {
+                        map += 'x ';
+                    }
+                }
+
+                map += '\n';
+            }
+
+            console.clear();
+
+            console.log(map);
+        },
+
+
+        getDirection() {
+
+            const availableDirections = [-1, 1, 2, 3, 4, 6, 7, 8, 9];
+
+            while (true) {
+
+                const direction = parseInt(prompt('Введите число, куда вы хотите переместиться, -1 для выхода.'));
+
+
+                if (!availableDirections.includes(direction)) {
+                    alert(`Для перемещения необходимо ввести одно из чисел: ${availableDirections.join(', ')}.`);
+                    continue;
+                }
+
+
+                return direction;
+            }
+        },
+
+
+        canPlayerMakeStep(nextStep) {
+            return nextStep.x >= 0 &&
+                nextStep.x < this.settings.colsCount &&
+                nextStep.y >= 0 &&
+                nextStep.y < this.settings.rowsCount;
+        }
+    };
+
+
+    game.run();
+
+    // 3. Задание
+
+    const questions = [
+        {
+            text: 'Что такое «яблоко»?',
+            variants: {
+                'a': 'фрукт',
+                'b': 'овощь',
+                'c': 'мамба',
+                'd': 'уямба',
+            },
+            correctAnswerIndex: 'a',
+        },
+        {
+            text: 'Что такое созвездие?',
+            variants: {
+                'a': 'татуировка',
+                'b': 'группа',
+                'c': 'набор инструментов',
+                'd': 'несколько звезд',
+            },
+            correctAnswerIndex: 'd',
+        },
+        {
+            text: 'Кентавр - кто это?',
+            variants: {
+                'a': 'кошка',
+                'b': 'собака',
+                'c': 'Тартила',
+                'd': 'Полу человек - полу лошадь',
+            },
+            correctAnswerIndex: 'd',
+        },
+        {
+            text: 'Попугай - это птица?',
+            variants: {
+                'a': 'да',
+                'b': 'нет',
+                'c': 'возможно',
+                'd': 'Жека',
+            },
+            correctAnswerIndex: 'a',
+        },
+        {
+            text: 'Какого цвета солнце',
+            variants: {
+                'a': 'белое',
+                'b': 'красное',
+                'c': 'черное',
+                'd': 'желтое',
+            },
+            correctAnswerIndex: 'd',
+        },
+    ];
+
+
+    const game = {
+        questions,
+        scoreCount: 0,
+        questionIndex: 0,
+
+
+        init() {
+            this.scoreCount = 0;
+            this.questionIndex = 0;
+        },
+
+
+        run() {
+            this.init();
+            alert('Сыграем в игру "Кто хочет стать миллионером!"');
+
+            while (true) {
+                const answer = this.getAnswer();
+
+                if (this.userWantExit(answer)) {
+                    alert("Приходите еще!");
+                    break;
+                }
+
+                if (this.isAnswerCorrect(answer)) {
+                    alert('И это правильный ответ!');
+                    this.scoreCount++;
+                } else {
+                    alert('Вы ответили неверно!');
+                }
+
+                this.questionIndex++;
+
+                if (this.isGameOver()) {
+                    alert(`Вы ответили верно на ${this.scoreCount} вопросов`);
+
+                    if (!confirm('Хотите сыграть еще раз?')) {
+                        break;
+                    }
+
+                    this.init();
+                }
+            }
+        },
+
+
+        getAnswer() {
+            while (true) {
+                let answer = prompt(this.getCurrentQuestionString());
+
+                if (answer === null) {
+                    alert('Если вы хотите выйти из игры, наберите "y".');
+                    continue;
+                }
+
+                answer = answer.trim().toLocaleLowerCase();
+
+                if (!this.validateAnswer(answer)) {
+                    alert('Введите один из предложенных вариантов ответа');
+                    continue;
+                }
+
+                return answer;
+            }
+        },
+
+        getCurrentQuestionString() {
+            const question = this.questions[this.questionIndex];
+
+            let questionString = `Вопрос: ${question.text} \n\nВарианты ответов: \n`;
+
+            for (const key in question.variants) {
+                if (question.variants.hasOwnProperty(key)) {
+                    questionString += `${key} - ${question.variants[key]}\n`;
+                }
+            }
+
+            return questionString;
+        },
+
+        validateAnswer(userAnswer) {
+            return ['y', 'a', 'b', 'c', 'd'].indexOf(userAnswer) !== -1;
+        },
+
+        userWantExit(userAnswer) {
+            return userAnswer === "y";
+        },
+
+        isAnswerCorrect(userAnswer) {
+            return this.questions[this.questionIndex].correctAnswerIndex === userAnswer;
+        },
+
+        isGameOver() {
+            return this.questionIndex > 4;
+        }
+    };
+
+    game.run();
+
+</script>
+
+</body>
+</html>
